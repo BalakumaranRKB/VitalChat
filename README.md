@@ -57,6 +57,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 **Built with ❤️ for better health conversations**
 
-[🌟 Star this repo](https://github.com/yourusername/VitalChat) | [🐛 Report Issues](https://github.com/yourusername/VitalChat/issues) | [📧 Contact](mailto:your.email@example.com)
+[🌟 Star this repo](https://github.com/yourusername/VitalChat) | [🐛 Report Issues](https://github.com/yourusername/VitalChat/issues) | [📧 Contact](mailto:kumaran5394@gmail.com)
 
 </div>
