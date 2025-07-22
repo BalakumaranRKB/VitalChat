@@ -11,7 +11,7 @@
 
 ## 📋 Description
 
-**VitalChat** is a cutting-edge generative AI chatbot designed to facilitate meaningful conversations around health-based topics. Leveraging the power of Retrieval-Augmented Generation (RAG), it provides users with accurate, contextual, and relevant health information by drawing from a carefully curated knowledge base.
+**VitalChat** is a generative AI chatbot designed to facilitate meaningful conversations around health-based topics. Leveraging the power of Retrieval-Augmented Generation (RAG), it provides users with accurate, contextual, and relevant health information by drawing from a carefully curated knowledge base.
 
 ## ✨ Features
 
