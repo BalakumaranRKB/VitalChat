@@ -1,6 +1,6 @@
 # 🏥 VitalChat
 
-> An intelligent AI-powered chatbot that revolutionizes health conversations through advanced retrieval-augmented generation. *This Repo is currently a work in progress*.
+> An intelligent AI-powered chatbot that revolutionizes health conversations through advanced retrieval-augmented generation. **This Repo is currently a work in progress**.
 
 [![Python](https://img.shields.io/badge/Python-3.8+-blue.svg)](https://python.org)
 [![RAG](https://img.shields.io/badge/RAG-Enabled-green.svg)](https://github.com)
