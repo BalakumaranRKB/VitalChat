@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>RAG Query System</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        h1 {
+            margin-bottom: 20px;
+        }
+        #chatHistory {
+            flex-grow: 1;
+            margin-bottom: 20px;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            min-height: 200px;
+            overflow-y: auto;
+        }
+        .chat-entry {
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+        .question {
+            font-weight: bold;
+            color: #0070f3;
+            margin-bottom: 5px;
+        }
+        .answer {
+            white-space: pre-wrap;
+        }
+        .audio-player {
+            margin-top: 10px;
+            width: 100%;
+        }
+        .input-container {
+            margin-top: auto;
+            padding: 20px 0;
+            border-top: 1px solid #eee;
+            background: white;
+        }
+        input {
+            width: 70%;
+            padding: 10px;
+            margin-right: 10px;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #0070f3;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+        .loader {
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-radius: 50%;
+            border-top: 3px solid #0070f3;
+            animation: spin 1s linear infinite;
+            margin-left: 10px;
+            display: inline-block;
+            vertical-align: middle;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .button-content {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>RAG Query System</h1>
+    
+    <div id="chatHistory">
+        <div class="initial-message">Ask a question to start the conversation...</div>
+    </div>
+    
+    <div class="input-container">
+        <input type="text" id="queryInput" placeholder="Enter your question...">
+        <button id="submitButton" onclick="submitQuery()">
+            <span class="button-content">
+                Ask Question
+                <span id="loader" class="loader" style="display: none;"></span>
+            </span>
+        </button>
+    </div>
+
+    <script>
+        // Keep track of the chat history on the client side
+        const chatEntries = [];
+        let latestAudio = null;
+        
+        async function submitQuery() {
+            const queryInput = document.getElementById('queryInput');
+            const query = queryInput.value.trim();
+            
+            if (!query) return; // Don't submit empty queries
+            
+            const chatHistory = document.getElementById('chatHistory');
+            const button = document.getElementById('submitButton');
+            const loader = document.getElementById('loader');
+            
+            try {
+                // Show loading state
+                button.disabled = true;
+                loader.style.display = 'inline-block';
+                
+                // Add temporary question entry
+                addChatEntry(query, "Processing...");
+                
+                const response = await fetch('/query', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ text: query })
+                });
+                
+                const data = await response.json();
+                
+                // Clear chat history and redraw from server data
+                chatHistory.innerHTML = '';
+                
+                // Update with full history from server
+                if (data.history && Array.isArray(data.history)) {
+                    data.history.forEach((entry, index) => {
+                        // Only add audio player to the latest response
+                        const isLatest = index === data.history.length - 1;
+                        addChatEntry(entry.question, entry.answer, isLatest ? data.audio : null);
+                    });
+                } else {
+                    // Fallback if history isn't provided
+                    addChatEntry(query, data.response, data.audio);
+                }
+                
+                // Clear input field
+                queryInput.value = '';
+                
+                // Scroll to bottom
+                chatHistory.scrollTop = chatHistory.scrollHeight;
+                
+            } catch (error) {
+                console.error('Error:', error);
+                addChatEntry(query, "Error processing your question. Please try again.");
+            } finally {
+                // Reset loading state
+                button.disabled = false;
+                loader.style.display = 'none';
+            }
+        }
+        
+        function addChatEntry(question, answer, audioData = null) {
+            const chatHistory = document.getElementById('chatHistory');
+            
+            // Remove initial message if present
+            const initialMessage = chatHistory.querySelector('.initial-message');
+            if (initialMessage) {
+                chatHistory.removeChild(initialMessage);
+            }
+            
+            // Create chat entry elements
+            const entryDiv = document.createElement('div');
+            entryDiv.className = 'chat-entry';
+            
+            const questionDiv = document.createElement('div');
+            questionDiv.className = 'question';
+            questionDiv.textContent = 'Q: ' + question;
+            
+            const answerDiv = document.createElement('div');
+            answerDiv.className = 'answer';
+            answerDiv.textContent = 'A: ' + answer;
+            
+            // Append to chat history
+            entryDiv.appendChild(questionDiv);
+            entryDiv.appendChild(answerDiv);
+            
+            // Add audio player if audio data is provided
+            if (audioData) {
+                const audioElement = document.createElement('audio');
+                audioElement.controls = true;
+                audioElement.autoplay = true;
+                audioElement.className = 'audio-player';
+                audioElement.src = 'data:audio/mp3;base64,' + audioData;
+                
+                entryDiv.appendChild(audioElement);
+                
+                // Store reference to latest audio
+                latestAudio = audioElement;
+            }
+            
+            chatHistory.appendChild(entryDiv);
+        }
+        
+        // Allow submitting with Enter key
+        document.getElementById('queryInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                submitQuery();
+            }
+        });
+    </script>
+</body>
+</html>
