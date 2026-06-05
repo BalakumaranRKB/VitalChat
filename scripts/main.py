@@ -64,14 +64,14 @@ async def process_query(query: Query):
     )
 
     rag_chain = (
-        {"context": lambda x: retriever.invoke, "question": RunnablePassthrough()}
+        {"context": lambda x: retriever.invoke(x), "question": RunnablePassthrough()}
         | prompt
         | llm
         | StrOutputParser()
     )
     
     result = rag_chain.invoke(query.text)
-    client = ElevenLabs(api_key="sk_c15e4425199e6d92bd33163ea3882b0b4b7c96f043508734", )        
+    client = ElevenLabs(api_key="", )        
     try:
         # For newer versions of the ElevenLabs API
         audio_output = client.text_to_speech.convert_as_stream(
